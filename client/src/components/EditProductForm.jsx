@@ -1,6 +1,56 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+
 function EditProductForm() {
+  const navigate = useNavigate();
+  const param = useParams();
+
+  const [productName, setProductName] = useState("");
+  const [productImg, setProductImg] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [productDescrip, setProductDescrip] = useState("");
+
+  const editedProduct = async () => {
+    try {
+      const updateProductData = {
+        name: productName,
+        price: productPrice,
+        image: productImg,
+        description: productDescrip,
+      };
+      await axios.put(
+        `http://localhost:4001/products/${param.productId}`,
+        updateProductData
+      );
+      navigate("/");
+    } catch (error) {
+      alert(error);
+    }
+  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    editedProduct();
+  };
+  //(HTML method:GET) API สำหรับดึงข้อมูลสินค้าด้วย Id ***ดึงข้อมูลแสดงที่ input form
+  const getProduct = async () => {
+    const result = await axios.get(
+      `http://localhost:4001/products/${param.productId}`
+    );
+    // console.log(result);
+    const getData = result.data.data;
+    setProductName(getData.name);
+    setProductPrice(getData.price);
+    setProductImg(getData.image);
+    setProductDescrip(getData.description);
+  };
+
+  useEffect(() => {
+    getProduct();
+  }, []);
+
   return (
-    <form className="product-form">
+    <form className="product-form" onSubmit={handleSubmit}>
       <h1>Edit Product Form</h1>
       <div className="input-container">
         <label>
@@ -10,7 +60,10 @@ function EditProductForm() {
             name="name"
             type="text"
             placeholder="Enter name here"
-            onChange={() => {}}
+            onChange={(e) => {
+              setProductName(e.target.value);
+            }}
+            value={productName}
           />
         </label>
       </div>
@@ -22,7 +75,10 @@ function EditProductForm() {
             name="image"
             type="text"
             placeholder="Enter image url here"
-            onChange={() => {}}
+            onChange={(e) => {
+              setProductImg(e.target.value);
+            }}
+            value={productImg}
           />
         </label>
       </div>
@@ -34,7 +90,10 @@ function EditProductForm() {
             name="price"
             type="number"
             placeholder="Enter price here"
-            onChange={() => {}}
+            onChange={(e) => {
+              setProductPrice(e.target.value);
+            }}
+            value={productPrice}
           />
         </label>
       </div>
@@ -46,7 +105,10 @@ function EditProductForm() {
             name="description"
             type="text"
             placeholder="Enter description here"
-            onChange={() => {}}
+            onChange={(e) => {
+              setProductDescrip(e.target.value);
+            }}
+            value={productDescrip}
             rows={4}
             cols={30}
           />
